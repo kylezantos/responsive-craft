@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #141414;
+      border-bottom: 1px solid #2a2a2a;
+      flex-shrink: 0;
+    }
+
+    .toolbar-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .toolbar-url {
+      flex: 1;
+      font-size: 13px;
+      color: #aaa;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      padding: 6px 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      font-size: 12px;
+      padding: 6px 12px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #1a1a1a;
+      color: #ccc;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn:hover { background: #252525; border-color: #444; }
+
+    .viewport-container {
+      flex: 1;
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      align-items: stretch;
+    }
+
+    .viewport-frame {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: #141414;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .viewport-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #2a2a2a;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .viewport-label-width {
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+
+    .viewport-label-name {
+      color: #666;
+    }
+
+    .viewport-frame iframe {
+      flex: 1;
+      border: none;
+      background: white;
+    }
+
+    .no-url {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .no-url h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #ccc;
+    }
+
+    .no-url p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .no-url code {
+      background: #1a1a1a;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <span class="toolbar-title">Responsive Preview</span>
+    <span class="toolbar-url" id="url-display">—</span>
+    <div class="toolbar-actions">
+      <button class="btn" onclick="refreshAll()" title="Reload all viewports">Refresh All</button>
+      <button class="btn" onclick="toggleScale()" id="scale-btn" title="Toggle between actual size and scaled-to-fit">Scale: Off</button>
+    </div>
+  </div>
+
+  <div class="viewport-container" id="viewports"></div>
+
+  <script>
+    const DEFAULT_BREAKPOINTS = [
+      { width: 375, name: 'Mobile' },
+      { width: 768, name: 'Tablet' },
+      { width: 1024, name: 'Laptop' },
+      { width: 1440, name: 'Desktop' },
+    ];
+
+    const BREAKPOINT_NAMES = {
+      320: 'Small Mobile',
+      375: 'Mobile',
+      390: 'Mobile',
+      414: 'Mobile L',
+      430: 'Mobile XL',
+      640: 'Small Tablet',
+      768: 'Tablet',
+      1024: 'Laptop',
+      1280: 'Desktop',
+      1440: 'Desktop L',
+      1920: 'Full HD',
+      2560: 'Ultra Wide',
+    };
+
+    let scaled = false;
+
+    function getParams() {
+      const params = new URLSearchParams(window.location.search);
+      const url = params.get('url');
+      const bpParam = params.get('breakpoints');
+
+      let breakpoints;
+      if (bpParam) {
+        breakpoints = bpParam.split(',').map(w => {
+          const width = parseInt(w.trim(), 10);
+          return { width, name: BREAKPOINT_NAMES[width] || `${width}px` };
+        }).filter(bp => !isNaN(bp.width));
+      } else {
+        breakpoints = DEFAULT_BREAKPOINTS;
+      }
+
+      return { url, breakpoints };
+    }
+
+    function renderViewports(url, breakpoints) {
+      const container = document.getElementById('viewports');
+      const urlDisplay = document.getElementById('url-display');
+
+      // Validate URL scheme — only allow http/https to prevent XSS via javascript: or data: URLs
+      if (url && !/^https?:\/\//i.test(url)) {
+        container.innerHTML = `
+          <div class="no-url">
+            <div>
+              <h2>Invalid URL scheme</h2>
+              <p>Only <code>http://</code> and <code>https://</code> URLs are supported.</p>
+            </div>
+          </div>`;
+        return;
+      }
+
+      if (!url) {
+        container.innerHTML = `
+          <div class="no-url">
+            <div>
+              <h2>No URL specified</h2>
+              <p>
+                Open this page with a URL parameter:<br><br>
+                <code>preview.html?url=http://localhost:3000</code><br><br>
+                Or use the launcher script:<br><br>
+                <code>node preview.js http://localhost:3000</code>
+              </p>
+            </div>
+          </div>`;
+        return;
+      }
+
+      urlDisplay.textContent = url;
+      container.innerHTML = '';
+
+      breakpoints.forEach(bp => {
+        const frame = document.createElement('div');
+        frame.className = 'viewport-frame';
+        frame.style.width = `${bp.width + 2}px`; // +2 for borders
+
+        const label = document.createElement('div');
+        label.className = 'viewport-label';
+        label.innerHTML = `
+          <span class="viewport-label-width">${bp.width}px</span>
+          <span class="viewport-label-name">${bp.name}</span>`;
+
+        const iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.style.width = `${bp.width}px`;
+        iframe.setAttribute('loading', 'lazy');
+
+        frame.appendChild(label);
+        frame.appendChild(iframe);
+        container.appendChild(frame);
+      });
+    }
+
+    function refreshAll() {
+      const iframes = document.querySelectorAll('.viewport-frame iframe');
+      iframes.forEach(iframe => {
+        iframe.src = iframe.src;
+      });
+    }
+
+    function toggleScale() {
+      scaled = !scaled;
+      const btn = document.getElementById('scale-btn');
+      const frames = document.querySelectorAll('.viewport-frame');
+      const container = document.getElementById('viewports');
+
+      if (scaled) {
+        btn.textContent = 'Scale: On';
+        const containerHeight = container.clientHeight - 32;
+        const containerWidth = container.clientWidth;
+        const { breakpoints } = getParams();
+        const totalNaturalWidth = breakpoints.reduce((sum, bp) => sum + bp.width + 18, 0); // +18 for gap+borders
+        const scaleFactor = Math.min(1, containerWidth / totalNaturalWidth);
+
+        frames.forEach(frame => {
+          frame.style.transform = `scale(${scaleFactor})`;
+          frame.style.transformOrigin = 'top left';
+        });
+      } else {
+        btn.textContent = 'Scale: Off';
+        frames.forEach(frame => {
+          frame.style.transform = '';
+        });
+      }
+    }
+
+    // Initialize
+    const { url, breakpoints } = getParams();
+    renderViewports(url, breakpoints);
+  </script>
+</body>
+</html>

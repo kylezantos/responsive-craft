@@ -194,7 +194,11 @@ As you build, you'll encounter patterns from `references/responsive-design-forks
 
 Load `references/testing-checklist.md` for the 10-point check and priority viewport list.
 
-**What Claude can do:** Scan the CSS output against `references/ai-failure-patterns.md` (static analysis). Flag things that need manual browser testing. Optionally generate Playwright viewport tests.
+**What Claude can do:** Scan the CSS output against `references/ai-failure-patterns.md` (static analysis). Flag things that need manual browser testing. Launch the multi-viewport preview or capture snapshots for visual verification.
+
+**Visual tools available:**
+- `node ${CLAUDE_SKILL_DIR}/scripts/preview.js <url>` — opens all breakpoints side by side in the browser
+- `node ${CLAUDE_SKILL_DIR}/scripts/snapshot.js <url>` — captures screenshots at each breakpoint
 
 **What needs manual testing:** Drag-resize behavior, real device quirks, touch interactions, keyboard open behavior.
 
