@@ -132,6 +132,8 @@ Run the pre-flight scan (ai-failure-patterns.md) against the change before prese
 
 Load `references/testing-checklist.md` for the 10-point check and priority viewport list.
 
+**Snapshot comparison:** If a dev server is running, use `node ${CLAUDE_SKILL_DIR}/scripts/snapshot.js <url> --before` before fixing, then `node ${CLAUDE_SKILL_DIR}/scripts/snapshot.js <url>` after fixing to generate a visual before/after comparison.
+
 After implementing fixes:
 
 1. Run the pre-flight scan (ai-failure-patterns.md checklist) against all changes
