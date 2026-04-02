@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { exec, spawn } = require('child_process');
+const { execFile, spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -32,7 +32,8 @@ function openInBrowser(url) {
   const cmd = process.platform === 'darwin' ? 'open'
     : process.platform === 'win32' ? 'start'
     : 'xdg-open';
-  exec(`${cmd} "${url}"`, (err) => {
+  // Use execFile with array args to prevent shell injection
+  execFile(cmd, [url], (err) => {
     if (err) console.error(`Could not open browser: ${err.message}`);
   });
 }

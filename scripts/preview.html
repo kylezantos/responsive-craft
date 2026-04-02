@@ -203,6 +203,18 @@
       const container = document.getElementById('viewports');
       const urlDisplay = document.getElementById('url-display');
 
+      // Validate URL scheme — only allow http/https to prevent XSS via javascript: or data: URLs
+      if (url && !/^https?:\/\//i.test(url)) {
+        container.innerHTML = `
+          <div class="no-url">
+            <div>
+              <h2>Invalid URL scheme</h2>
+              <p>Only <code>http://</code> and <code>https://</code> URLs are supported.</p>
+            </div>
+          </div>`;
+        return;
+      }
+
       if (!url) {
         container.innerHTML = `
           <div class="no-url">

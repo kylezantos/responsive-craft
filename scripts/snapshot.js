@@ -32,12 +32,15 @@ function parseArgs(args) {
 }
 
 function captureScreenshot(url, width, outputName) {
+  // Use JSON.stringify to safely escape the URL for embedding in JavaScript
+  const safeUrl = JSON.stringify(url);
+  const safeOutputName = JSON.stringify(outputName);
   const script = `
     const page = await browser.newPage();
     await page.setViewportSize({ width: ${width}, height: ${DEFAULT_HEIGHT} });
-    await page.goto("${url.replace(/"/g, '\\"')}", { waitUntil: "networkidle" });
+    await page.goto(${safeUrl}, { waitUntil: "networkidle" });
     const buf = await page.screenshot({ fullPage: true });
-    const savedPath = await saveScreenshot(buf, "${outputName}");
+    const savedPath = await saveScreenshot(buf, ${safeOutputName});
     console.log(savedPath);
   `;
 
@@ -182,15 +185,22 @@ for (const width of breakpoints) {
   }
 }
 
-const validShots = screenshots.filter(Boolean);
+// Filter breakpoints alongside screenshots so labels stay aligned
+const validIndices = screenshots.map((s, i) => s ? i : -1).filter(i => i >= 0);
+const validShots = validIndices.map(i => screenshots[i]);
+const validBreakpoints = validIndices.map(i => breakpoints[i]);
 
 if (validShots.length === 0) {
   console.error('\nNo screenshots captured. Check that the URL is accessible.');
   process.exit(1);
 }
 
+if (validShots.length < breakpoints.length) {
+  console.log(`\nWarning: ${breakpoints.length - validShots.length} of ${breakpoints.length} breakpoints failed to capture.`);
+}
+
 // Generate composite HTML
-const compositeHtml = generateCompositeHtml(validShots, breakpoints);
+const compositeHtml = generateCompositeHtml(validShots, validBreakpoints);
 const compositeHtmlPath = path.join(targetDir, 'composite.html');
 fs.writeFileSync(compositeHtmlPath, compositeHtml);
 console.log(`\nComposite: ${compositeHtmlPath}`);

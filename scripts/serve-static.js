@@ -50,7 +50,11 @@ fs.watch(rootDir, { recursive: true }, () => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     reloadClients.forEach(res => {
-      try { res.write('data: reload\n\n'); } catch {}
+      try { res.write('data: reload\n\n'); } catch {
+        // Remove dead client on write failure
+        const idx = reloadClients.indexOf(res);
+        if (idx !== -1) reloadClients.splice(idx, 1);
+      }
     });
   }, 150);
 });
@@ -74,15 +78,17 @@ function serve(port) {
       return;
     }
 
-    let filePath = path.join(rootDir, decodeURIComponent(req.url));
+    let filePath = path.resolve(rootDir, decodeURIComponent(req.url).replace(/^\/+/, ''));
 
     // Default to index.html for directory requests
     if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
       filePath = path.join(filePath, 'index.html');
     }
 
-    // Prevent path traversal
-    if (!filePath.startsWith(rootDir)) {
+    // Prevent path traversal — canonicalize both paths before comparing
+    const canonicalRoot = path.resolve(rootDir) + path.sep;
+    const canonicalFile = path.resolve(filePath);
+    if (!canonicalFile.startsWith(canonicalRoot) && canonicalFile !== path.resolve(rootDir)) {
       res.writeHead(403);
       res.end('Forbidden');
       return;
