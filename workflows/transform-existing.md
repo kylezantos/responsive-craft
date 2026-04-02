@@ -132,7 +132,7 @@ Run the pre-flight scan (ai-failure-patterns.md) against the change before prese
 
 Load `references/testing-checklist.md` for the 10-point check and priority viewport list.
 
-**Snapshot comparison:** If a dev server is running, use `node ${CLAUDE_SKILL_DIR}/scripts/snapshot.js <url> --before` before fixing, then `node ${CLAUDE_SKILL_DIR}/scripts/snapshot.js <url>` after fixing to generate a visual before/after comparison.
+**Snapshot comparison (optional):** For before/after documentation, use `node ${CLAUDE_SKILL_DIR}/scripts/snapshot.js <url> --before` before fixing, then `node ${CLAUDE_SKILL_DIR}/scripts/snapshot.js <url>` after fixing to generate a visual comparison.
 
 After implementing fixes:
 
@@ -152,6 +152,12 @@ Issues fixed: [N]
 Design forks resolved: [N]
 Remaining concerns: [list any, or "none"]
 ```
+
+**Offer live preview:** After presenting the summary, offer to launch the multi-breakpoint preview so the user can see the results across all viewports at once:
+
+> Want me to open a live responsive preview in your browser? You'll see 375px, 768px, 1024px, and 1440px side by side — you can scroll and navigate each one independently.
+
+If they accept, run `node ${CLAUDE_SKILL_DIR}/scripts/preview.js <url>`.
 
 ---
 

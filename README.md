@@ -10,10 +10,11 @@ When you're building responsive layouts in Claude Code (or any code-first enviro
 
 ## What It Does
 
-### Two Modes
+### Three Modes
 
 - **Transform Existing** (`/responsive-craft audit`) — Audits your current codebase's responsive implementation, identifies issues and ambiguous translations, and fixes them in priority order.
 - **Build From Scratch** (`/responsive-craft build`) — Helps you design responsive behavior before writing CSS, establishes a mobile-first foundation, and builds with the right CSS tool for each pattern.
+- **Live Preview** (`/responsive-craft preview`) — Opens a multi-breakpoint preview in your browser with interactive iframes at 375px, 768px, 1024px, and 1440px, all pointing at your dev server. Scroll, click, and navigate each viewport independently. Also offered automatically after completing an audit or build.
 
 ### Two Interactivity Levels
 
@@ -40,10 +41,16 @@ The skill's key differentiator. When a responsive translation has multiple valid
 
 ```
 responsive-craft/
-├── SKILL.md                              # Core principles, routing, gotchas (152 lines)
+├── SKILL.md                              # Core principles, routing, gotchas
 ├── workflows/
 │   ├── transform-existing.md             # Audit → forks → fix existing sites
-│   └── build-responsive.md              # Describe → foundation → build mobile-first
+│   ├── build-responsive.md              # Describe → foundation → build mobile-first
+│   └── preview.md                       # Launch live multi-breakpoint preview
+├── scripts/
+│   ├── preview.js                       # Serves preview.html over HTTP, opens browser
+│   ├── preview.html                     # Multi-viewport iframe UI (dark theme, toolbar, scale toggle)
+│   ├── snapshot.js                      # Headless screenshots at every breakpoint
+│   └── serve-static.js                  # Zero-dependency static server with live reload
 ├── references/
 │   ├── modern-css-patterns.md           # Container queries, clamp(), subgrid, :has(), viewport units, @layer
 │   ├── sticky-scroll-patterns.md        # Sticky coordination, scroll-snap, scroll regions, modals/sheets
@@ -60,6 +67,18 @@ responsive-craft/
 - **ai-failure-patterns.md** — 13 specific, recurring mistakes AI makes with responsive CSS: `100vh` on mobile, desktop-first queries, missing `min-width: 0` on flex children, `overflow: hidden` killing sticky, iOS input zoom, z-index escalation, and more. Each with bad output, why it breaks, and the correct pattern. Includes a pre-flight scan checklist.
 
 - **sticky-scroll-patterns.md** — Production patterns for the complex stuff: coordinating multiple sticky elements with CSS custom properties, debugging sticky failures, scroll-snap carousels, independent scroll regions (dashboard pattern), sticky + responsive transitions, IntersectionObserver for stuck detection.
+
+### Live Preview
+
+The standout verification tool. When you can't drag-resize a browser in a code-first environment, this gives you the next best thing — all your key breakpoints rendered simultaneously in real, interactive iframes. No screenshots, no mocking — actual live pages you can scroll and click through.
+
+Run `/responsive-craft preview` to launch it standalone, or it's offered automatically at the end of every audit and build workflow.
+
+The preview tool:
+- Serves everything over HTTP automatically (no cross-origin iframe issues)
+- Works with any dev server (Vite, Next.js, etc.) or static HTML files
+- Supports custom breakpoints via `--breakpoints` flag
+- Cleans up after itself on exit
 
 ## Installation
 
@@ -90,10 +109,14 @@ Copy the entire `responsive-craft/` directory into either `~/.claude/skills/` (p
 # Build responsive from scratch
 /responsive-craft build
 
+# Open a live multi-breakpoint preview
+/responsive-craft preview
+
 # Claude also auto-detects when you're working on responsive layouts
 "make this responsive"
 "fix the mobile layout"
 "the sidebar breaks on tablet"
+"show me the responsive preview"
 ```
 
 ## Framework Support
