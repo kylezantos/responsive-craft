@@ -1,7 +1,7 @@
 ---
 name: responsive-craft
-description: "Implement responsive design for websites and web apps — from standard mobile-first layouts to complex patterns (sticky elements, scroll coordination, data tables, dashboards). Two modes: transform existing sites or build responsive from scratch. Surfaces design forks where there's no single right answer. Use when building responsive layouts, fixing mobile issues, adding breakpoints, working with sticky/scroll patterns, or when the user mentions responsive, mobile, breakpoints, viewport, or adaptive design."
-argument-hint: "[audit|build]"
+description: "Implement responsive design for websites and web apps — from standard mobile-first layouts to complex patterns (sticky elements, scroll coordination, data tables, dashboards). Three modes: transform existing sites, build responsive from scratch, or launch a live multi-breakpoint preview. Surfaces design forks where there's no single right answer. Use when building responsive layouts, fixing mobile issues, adding breakpoints, working with sticky/scroll patterns, previewing breakpoints, or when the user mentions responsive, mobile, breakpoints, viewport, adaptive design, or responsive preview."
+argument-hint: "[audit|build|preview]"
 ---
 
 # Responsive Craft
@@ -12,6 +12,7 @@ Implement responsive design that works across all viewports — compensating for
 
 **Transform an existing site:** `/responsive-craft audit` or "make this responsive" or "fix the mobile layout"
 **Build responsive from scratch:** `/responsive-craft build` or "build this mobile-first" or "create a responsive layout"
+**Preview all breakpoints:** `/responsive-craft preview` or "show me the responsive preview" or "open the breakpoint preview"
 
 ---
 
@@ -57,10 +58,11 @@ Does this need to change layout?
 
 ## Mode Selection
 
-This skill operates in two modes. Detect from `$ARGUMENTS` or ask.
+This skill operates in three modes. Detect from `$ARGUMENTS` or ask.
 
 ### Detection
 
+- `$ARGUMENTS` contains "preview", "show breakpoints", "live preview" → **Preview**
 - `$ARGUMENTS` contains "audit", "transform", "fix", "improve", "retrofit" → **Transform Existing**
 - `$ARGUMENTS` contains "build", "create", "new", "from scratch" → **Build Responsive**
 - User is working in an existing codebase with responsive issues → **Transform Existing**
@@ -70,10 +72,13 @@ This skill operates in two modes. Detect from `$ARGUMENTS` or ask.
 If AskUserQuestion is available:
 - **Transform existing** — Audit and improve responsive behavior of current code
 - **Build from scratch** — Design responsive layout from the start
+- **Preview** — Launch a live multi-breakpoint preview in the browser
 
-Otherwise: "Are you transforming an existing site's responsive design, or building something new?"
+Otherwise: "Are you transforming an existing site's responsive design, building something new, or just previewing?"
 
 ### Interactivity Level
+
+**Skip for Preview mode** — go straight to routing.
 
 After mode selection, determine interactivity:
 
@@ -95,6 +100,7 @@ After mode and interactivity are selected:
 
 | Mode | Read workflow | Load immediately |
 |------|-------------|-----------------|
+| Preview | `workflows/preview.md` | None |
 | Transform Existing | `workflows/transform-existing.md` | `references/ai-failure-patterns.md` |
 | Build Responsive | `workflows/build-responsive.md` | `references/modern-css-patterns.md`, `references/ai-failure-patterns.md` |
 
@@ -183,3 +189,4 @@ Both tools require no dependencies — just Node.js. Snapshots require `dev-brow
 |----------|---------|
 | [transform-existing.md](workflows/transform-existing.md) | Audit → identify forks → fix responsive issues in priority order |
 | [build-responsive.md](workflows/build-responsive.md) | Describe behavior → establish foundation → build mobile-first → verify |
+| [preview.md](workflows/preview.md) | Launch live multi-breakpoint preview in the browser |

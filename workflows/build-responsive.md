@@ -226,6 +226,12 @@ AI failure scan: [pass/issues found]
 Design forks resolved: [N]
 ```
 
+**Offer live preview:** After presenting the summary, offer to launch the multi-breakpoint preview:
+
+> Want me to open a live responsive preview in your browser? You'll see 375px, 768px, 1024px, and 1440px side by side — you can scroll and navigate each one independently.
+
+If they accept, run `node ${CLAUDE_SKILL_DIR}/scripts/preview.js <url>`.
+
 ---
 
 ## Success Criteria
