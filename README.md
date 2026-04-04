@@ -80,25 +80,41 @@ The preview tool:
 - Supports custom breakpoints via `--breakpoints` flag
 - Cleans up after itself on exit
 
-## Installation
+## Install
 
-### As a personal skill (available in all projects)
+### One command (all agents)
 
 ```bash
-# Clone into your Claude Code skills directory
+npx skills add kylezantos/responsive-craft
+```
+
+Auto-detects your installed agents and installs to each. Works with Claude Code, Codex, OpenCode, Cursor, Gemini CLI, Windsurf, and [35+ more](https://github.com/vercel-labs/skills).
+
+### Target specific agents
+
+```bash
+npx skills add kylezantos/responsive-craft -a claude-code
+npx skills add kylezantos/responsive-craft -a codex -a opencode
+```
+
+### Manual install
+
+Copy the entire `responsive-craft/` directory into your agent's skills path:
+
+| Agent | Path |
+|-------|------|
+| Claude Code | `~/.claude/skills/responsive-craft/` |
+| Codex | `~/.codex/skills/responsive-craft/` |
+| OpenCode | `~/.config/opencode/skills/responsive-craft/` |
+| Cursor | `~/.cursor/skills/responsive-craft/` |
+| Gemini CLI | `~/.gemini/skills/responsive-craft/` |
+| Windsurf | `~/.codeium/windsurf/skills/responsive-craft/` |
+
+Or clone:
+
+```bash
 git clone https://github.com/kylezantos/responsive-craft.git ~/.claude/skills/responsive-craft
 ```
-
-### As a project skill
-
-```bash
-# Clone into your project's .claude directory
-git clone https://github.com/kylezantos/responsive-craft.git .claude/skills/responsive-craft
-```
-
-### Manual
-
-Copy the entire `responsive-craft/` directory into either `~/.claude/skills/` (personal) or `.claude/skills/` (project).
 
 ## Usage
 
